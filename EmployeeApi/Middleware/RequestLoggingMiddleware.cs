@@ -25,18 +25,4 @@ public class RequestLoggingMiddleware
             $"Response: {context.Response.StatusCode} | " + 
             $"Time: {stopwatch.ElapsedMilliseconds} ms");
     }
-    //     public async Task InvokeAsync(HttpContext context)
-// {
-//     Console.WriteLine("---- Middleware START ----");
-
-//     Console.WriteLine(
-//         $"Request: {context.Request.Method} {context.Request.Path}");
-
-//     await _next(context);
-
-//     Console.WriteLine(
-//         $"Response: {context.Response.StatusCode}");
-
-//     Console.WriteLine("---- Middleware END ----");
-// }
 }
