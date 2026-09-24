@@ -1,32 +1,34 @@
 using Microsoft.AspNetCore.Mvc;
+using EmployeeManagement.Api.Services;
 
-namespace EmployeeApi.Controllers;
+namespace EmployeeManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class EmployeesController: ControllerBase
 {
+    private readonly EmployeeService _employeesService;
+    
+    public EmployeesController(EmployeeService employeesService)
+    {
+        _employeesService = employeesService;
+    }
+
     [HttpGet]
     public IActionResult GetEmployees()
     {
-        return Ok(new []
-        {
-            new {Id = 1, Name = "Arun"},
-            new {Id = 2, Name = "Priya"}
-        });
+        return Ok(_employeesService.GetEmployees());
     }
+
     [HttpGet("{id}")]
     public IActionResult GetEmployee(int id)
     {
-        var employees = new []
-        {
-            new {Id = 1, Name = "Arun"},
-            new {Id = 2, Name = "Priya"}
-        };
+        var employee = _employeesService.GetEmployee(id);
 
-        var employee = employees.FirstOrDefault(e => e.Id == id);
         if (employee == null)
-        return NotFound();
+        {
+            return NotFound();
+        }
 
         return Ok(employee);
     }
