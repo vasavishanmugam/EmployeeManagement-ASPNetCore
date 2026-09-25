@@ -1,7 +1,7 @@
 using EmployeeManagement.Api.Models;
 namespace EmployeeManagement.Api.Services;
 
-public class EmployeeService
+public class EmployeeService : IEmployeeService
 {
     private readonly List<Employee> _employees = 
     [
