@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using EmployeeManagement.Api.Services;
+using EmployeeManagement.Api.Models;
 
 namespace EmployeeManagement.Api.Controllers;
 
@@ -31,5 +32,39 @@ public class EmployeesController: ControllerBase
         }
 
         return Ok(employee);
+    }
+
+    [HttpPost]
+    public IActionResult AddEmployee(Employee employee)
+    {
+        var createdEmployee = _employeesService.AddEmployee(employee);
+        return CreatedAtAction(
+            nameof(GetEmployee),
+            new {id = createdEmployee.Id},
+            createdEmployee);
+    }
+
+    [HttpPut("{id}")]
+    public IActionResult UpdateEmployee(int id, Employee employee)
+    {
+        var updatedEmployee  = _employeesService.UpdateEmployee(id, employee);
+        if (updatedEmployee == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(updatedEmployee);
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteEmployee(int id)
+    {
+        var DeleteEmployee = _employeesService.DeleteEmployee(id);
+        if (!DeleteEmployee)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
     }
 }
