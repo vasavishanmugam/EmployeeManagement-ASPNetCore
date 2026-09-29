@@ -18,4 +18,38 @@ public class EmployeeService : IEmployeeService
     {
         return _employees.FirstOrDefault(e => e.Id == id);
     }
+
+    public Employee AddEmployee(Employee employee)
+    {
+        employee.Id = _employees.Count == 0
+        ? 1 : _employees.Max(e => e.Id) + 1;
+        _employees.Add(employee);
+
+        return employee;
+    }
+
+    public Employee? UpdateEmployee(int id, Employee employee)
+    {
+        var existingEmployee = _employees.FirstOrDefault(e => e.Id == id);
+        if (existingEmployee == null)
+        {
+            return null;
+        }
+
+        existingEmployee.Name = employee.Name;
+
+        return existingEmployee;
+    }
+
+    public bool DeleteEmployee(int id)
+    {
+        var employee = _employees.FirstOrDefault(e => e.Id == id);
+        if (employee == null)
+        {
+            return false;
+        }
+
+        _employees.Remove(employee);
+        return true;
+    }
 }
