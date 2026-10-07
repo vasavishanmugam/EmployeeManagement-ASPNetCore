@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using EmployeeManagement.Api.Services;
 using EmployeeManagement.Api.Models;
+using EmployeeManagement.Api.DTOs;
 
 namespace EmployeeManagement.Api.Controllers;
 
@@ -35,9 +36,15 @@ public class EmployeesController: ControllerBase
     }
 
     [HttpPost]
-    public IActionResult AddEmployee(Employee employee)
+    public IActionResult AddEmployee(EmployeeCreateDto employeeDto)
     {
+        var employee = new Employee
+        {
+            Name = employeeDto.Name
+        };
+
         var createdEmployee = _employeesService.AddEmployee(employee);
+        
         return CreatedAtAction(
             nameof(GetEmployee),
             new {id = createdEmployee.Id},
@@ -45,8 +52,13 @@ public class EmployeesController: ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateEmployee(int id, Employee employee)
+    public IActionResult UpdateEmployee(int id, EmployeeUpdateDto employeeDto)
     {
+        var employee = new Employee
+        {
+            Name = employeeDto.Name
+        };
+
         var updatedEmployee  = _employeesService.UpdateEmployee(id, employee);
         if (updatedEmployee == null)
         {
