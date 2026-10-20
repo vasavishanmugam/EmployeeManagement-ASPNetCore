@@ -1,55 +1,62 @@
 using EmployeeManagement.Api.Models;
+using Microsoft.EntityFrameworkCore;
+using EmployeeManagement.Api.Data;
+
 namespace EmployeeManagement.Api.Services;
 
 public class EmployeeService : IEmployeeService
 {
-    private readonly List<Employee> _employees = 
-    [
-        new Employee {Id = 1,  Name = "Arun"},
-        new Employee {Id = 2, Name = "Priya"}
-    ];
+    private readonly EmployeeDbContext _context;
 
-    public List<Employee> GetEmployees()
+    public EmployeeService(EmployeeDbContext context)
     {
-        return _employees;
+        _context = context;
     }
 
-    public Employee? GetEmployee(int id)
+    public async Task<List<Employee>> GetEmployeesAsync()
     {
-        return _employees.FirstOrDefault(e => e.Id == id);
+        return await _context.Employees.ToListAsync();
     }
 
-    public Employee AddEmployee(Employee employee)
+    public async Task<Employee?> GetEmployeeAsync(int id)
     {
-        employee.Id = _employees.Count == 0
-        ? 1 : _employees.Max(e => e.Id) + 1;
-        _employees.Add(employee);
+        return await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+    public async Task<Employee> AddEmployeeAsync(Employee employee)
+    {
+        _context.Employees.Add(employee);
+        await _context.SaveChangesAsync();
 
         return employee;
     }
 
-    public Employee? UpdateEmployee(int id, Employee employee)
+    public async Task<Employee?> UpdateEmployeeAsync(int id, Employee employee)
     {
-        var existingEmployee = _employees.FirstOrDefault(e => e.Id == id);
-        if (existingEmployee == null)
+        var existingEmployee = await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+        if (existingEmployee is null)
         {
             return null;
         }
 
         existingEmployee.Name = employee.Name;
 
+        await _context.SaveChangesAsync();
         return existingEmployee;
     }
 
-    public bool DeleteEmployee(int id)
+    public async Task<bool> DeleteEmployeeAsync(int id)
     {
-        var employee = _employees.FirstOrDefault(e => e.Id == id);
-        if (employee == null)
+        var employee = await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+       
+        if (employee is null)
         {
             return false;
         }
 
-        _employees.Remove(employee);
+       _context.Employees.Remove(employee);
+       await _context.SaveChangesAsync();
+
         return true;
     }
 }
