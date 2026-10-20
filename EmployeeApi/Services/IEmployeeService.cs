@@ -4,9 +4,9 @@ namespace EmployeeManagement.Api.Services;
 
 public interface IEmployeeService
 {
-    List<Employee> GetEmployees();
-    Employee? GetEmployee(int id);
-    Employee AddEmployee(Employee employee);
-    Employee? UpdateEmployee(int id, Employee employee);
-    bool DeleteEmployee(int id);
+    Task<List<Employee>> GetEmployeesAsync();
+    Task<Employee?> GetEmployeeAsync(int id);
+    Task<Employee> AddEmployeeAsync(Employee employee);
+    Task<Employee?> UpdateEmployeeAsync(int id, Employee employee);
+    Task<bool> DeleteEmployeeAsync(int id);
 }
