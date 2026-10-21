@@ -59,4 +59,19 @@ public class EmployeeService : IEmployeeService
 
         return true;
     }
+
+    public async Task<List<Employee>> GetEmployeesByNameAsync(string name)
+    {
+        return await _context.Employees.Where(e => e.Name.Contains(name)).ToListAsync();
+    }
+
+    public async Task<List<Employee>> GetEmployeesSortedByNameAsync()
+    {
+        return await _context.Employees.OrderBy(e => e.Name).ToListAsync();
+    }
+
+    public async Task<List<String>> GetEmployeeNamesAsync()
+    {
+        return await _context.Employees.Select(e => e.Name).ToListAsync();
+    }
 }

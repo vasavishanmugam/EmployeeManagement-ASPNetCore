@@ -81,4 +81,25 @@ public class EmployeesController: ControllerBase
 
         return NoContent();
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchEmployees([FromQuery] string name)
+    {
+        var employees = await _employeeService.GetEmployeesByNameAsync(name);
+        return Ok(employees);
+    }
+
+    [HttpGet("sorted")]
+    public async Task<IActionResult> GetEmployeesSorted()
+    {
+        var employees = await _employeeService.GetEmployeesSortedByNameAsync();
+        return Ok(employees);
+    }
+
+    [HttpGet("names")]
+    public async Task<IActionResult> GetEmmployeeNames()
+    {
+        var names = await _employeeService.GetEmployeeNamesAsync();
+        return Ok(names);
+    }
 }
