@@ -14,6 +14,11 @@ builder.Services.AddDbContext<EmployeeDbContext>(options =>
 builder.Services.AddScoped< IEmployeeService,EmployeeService>();
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/error");
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -23,4 +28,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.MapControllers();
+app.Map("/error", () =>
+    Results.Problem(
+        title: "An unexpected error occurred.",
+        statusCode: StatusCodes.Status500InternalServerError));
 app.Run();
