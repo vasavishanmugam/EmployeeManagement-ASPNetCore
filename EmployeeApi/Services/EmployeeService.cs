@@ -15,12 +15,12 @@ public class EmployeeService : IEmployeeService
 
     public async Task<List<Employee>> GetEmployeesAsync()
     {
-        return await _context.Employees.ToListAsync();
+        return await _context.Employees.Include(e=>e.Department).ToListAsync();
     }
 
     public async Task<Employee?> GetEmployeeAsync(int id)
     {
-        return await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+        return await _context.Employees.Include(e=>e.Department).FirstOrDefaultAsync(e => e.Id == id);
     }
 
     public async Task<Employee> AddEmployeeAsync(Employee employee)
