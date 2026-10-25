@@ -4,7 +4,11 @@ namespace EmployeeManagement.Api.Services;
 
 public interface IEmployeeService
 {
-    Task<List<Employee>> GetEmployeesAsync();
+    Task<(List<Employee> Employees, int TotalCount)> GetEmployeesAsync(
+    string? name,
+    int pageNumber,
+    int pageSize,
+    string? sortBy);
     Task<Employee?> GetEmployeeAsync(int id);
     Task<Employee> AddEmployeeAsync(Employee employee);
     Task<Employee?> UpdateEmployeeAsync(int id, Employee employee);

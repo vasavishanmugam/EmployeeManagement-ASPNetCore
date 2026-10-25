@@ -13,10 +13,39 @@ public class EmployeeService : IEmployeeService
         _context = context;
     }
 
-    public async Task<List<Employee>> GetEmployeesAsync()
+public async Task<(List<Employee> Employees, int TotalCount)> GetEmployeesAsync(
+    string? name,
+    int pageNumber,
+    int pageSize,
+    string? sortBy)
+{
+    var query = _context.Employees
+        .Include(e => e.Department)
+        .Include(e => e.Projects)
+        .AsQueryable();
+
+    // Filter by employee name
+    if (!string.IsNullOrWhiteSpace(name))
     {
-        return await _context.Employees.Include(e=>e.Department).ToListAsync();
+        query = query.Where(e => e.Name.Contains(name));
     }
+
+    // Sort employees
+    query = sortBy?.ToLower() == "name"
+        ? query.OrderBy(e => e.Name)
+        : query.OrderBy(e => e.Id);
+
+    // Get total count before pagination
+    var totalCount = await query.CountAsync();
+
+    // Apply pagination
+    var employees = await query
+        .Skip((pageNumber - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
+
+    return (employees, totalCount);
+}
 
     public async Task<Employee?> GetEmployeeAsync(int id)
     {
@@ -25,10 +54,32 @@ public class EmployeeService : IEmployeeService
 
     public async Task<Employee> AddEmployeeAsync(Employee employee)
     {
+        var departmentIds = await _context.Departments
+            .Select(d => d.DepartmentId)
+            .ToListAsync();
+
+        if (departmentIds.Count == 0)
+            throw new InvalidOperationException("No departments available.");
+
+        var projects = await _context.Projects.ToListAsync();
+
+        if (projects.Count == 0)
+            throw new InvalidOperationException("No projects available.");
+
+        var random = new Random();
+
+        employee.DepartmentId = departmentIds[random.Next(departmentIds.Count)];
+
+        var selectedProject = projects[random.Next(projects.Count)];
+        employee.Projects.Add(selectedProject);
+
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync();
 
-        return employee;
+        return await _context.Employees
+            .Include(e => e.Department)
+            .Include(e => e.Projects)
+            .FirstAsync(e => e.Id == employee.Id);
     }
 
     public async Task<Employee?> UpdateEmployeeAsync(int id, Employee employee)
