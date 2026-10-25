@@ -17,10 +17,48 @@ public class EmployeesController: ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetEmployees()
+    public async Task<IActionResult> GetEmployees(
+    [FromQuery] string? name,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string? sortBy = null)
     {
-        var employees = await _employeeService.GetEmployeesAsync();
-        return Ok(employees);
+        if (pageNumber < 1 || pageSize < 1 || pageSize > 100)
+        {
+            return BadRequest("Invalid pagination value.");
+        }
+
+        var result = await _employeeService.GetEmployeesAsync(
+            name, pageNumber, pageSize, sortBy);
+
+        var employees = result.Employees.Select(e => new EmployeeResponseDto
+        {
+            Id = e.Id,
+            Name = e.Name,
+            DepartmentId = e.DepartmentId,
+
+            Department = e.Department == null ? null : new DepartmentSummaryDto
+            {
+                DepartmentId = e.Department.DepartmentId,
+                DepartmentName = e.Department.DepartmentName
+            },
+
+            Projects = e.Projects.Select(p => new ProjectSummaryDto
+            {
+                ProjectId = p.ProjectId,
+                ProjectName = p.ProjectName
+            }).ToList()
+        }).ToList();
+
+        return Ok(new
+        {
+            totalCount = result.TotalCount,
+            pageNumber,
+            pageSize,
+            totalPages = (int)Math.Ceiling(
+                (double)result.TotalCount / pageSize),
+            employees
+        });
     }
 
     [HttpGet("{id}")]
@@ -45,11 +83,31 @@ public class EmployeesController: ControllerBase
         };
 
         var createdEmployee = await _employeeService.AddEmployeeAsync(employee);
-        
+
+        var response = new EmployeeResponseDto
+        {
+            Id = createdEmployee.Id,
+            Name = createdEmployee.Name,
+            DepartmentId = createdEmployee.DepartmentId,
+
+            Department = createdEmployee.Department == null ? null : new DepartmentSummaryDto
+            {
+                DepartmentId = createdEmployee.Department.DepartmentId,
+                DepartmentName = createdEmployee.Department.DepartmentName
+            },
+
+            Projects = createdEmployee.Projects
+                .Select(p => new ProjectSummaryDto
+                {
+                    ProjectId = p.ProjectId,
+                    ProjectName = p.ProjectName
+                })
+                .ToList()
+        };
         return CreatedAtAction(
             nameof(GetEmployee),
-            new {id = createdEmployee.Id},
-            createdEmployee);
+            new { id = createdEmployee.Id },
+            response);
     }
 
     [HttpPut("{id}")]

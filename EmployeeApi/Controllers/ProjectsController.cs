@@ -75,4 +75,24 @@ public class ProjectsController: ControllerBase
 
         return Ok("Employee assigned to project successfully.");
     }
+
+    [HttpGet]
+public async Task<IActionResult> GetAllProjects()
+{
+    var projects = await _context.Projects
+        .Select(p => new ProjectDetailsDto
+        {
+            ProjectId = p.ProjectId,
+            ProjectName = p.ProjectName,
+            Employees = p.Employees.Select(e => new EmployeeSummaryDto
+            {
+                Id = e.Id,
+                Name = e.Name,
+                DepartmentId = e.DepartmentId
+            }).ToList()
+        })
+        .ToListAsync();
+
+    return Ok(projects);
+}
 }
