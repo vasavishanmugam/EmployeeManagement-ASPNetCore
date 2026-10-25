@@ -49,7 +49,10 @@ public async Task<(List<Employee> Employees, int TotalCount)> GetEmployeesAsync(
 
     public async Task<Employee?> GetEmployeeAsync(int id)
     {
-        return await _context.Employees.Include(e=>e.Department).FirstOrDefaultAsync(e => e.Id == id);
+            return await _context.Employees
+        .Include(e => e.Department)
+        .Include(e => e.Projects)
+        .FirstOrDefaultAsync(e => e.Id == id);
     }
 
     public async Task<Employee> AddEmployeeAsync(Employee employee)
