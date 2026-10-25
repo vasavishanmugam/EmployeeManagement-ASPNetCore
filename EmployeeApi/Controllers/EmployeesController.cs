@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using EmployeeManagement.Api.Services;
 using EmployeeManagement.Api.Models;
 using EmployeeManagement.Api.DTOs;
-
+using EmployeeManagement.Api.Middleware;
 namespace EmployeeManagement.Api.Controllers;
 
 [ApiController]
@@ -71,7 +71,26 @@ public class EmployeesController: ControllerBase
             return NotFound();
         }
 
-        return Ok(employee);
+        var response = new EmployeeResponseDto
+        {
+            Id = employee.Id,
+            Name = employee.Name,
+            DepartmentId = employee.DepartmentId,
+
+            Department = employee.Department == null ? null : new DepartmentSummaryDto
+            {
+                DepartmentId = employee.Department.DepartmentId,
+                DepartmentName = employee.Department.DepartmentName
+            },
+
+            Projects = employee.Projects.Select(p => new ProjectSummaryDto
+            {
+                ProjectId = p.ProjectId,
+                ProjectName = p.ProjectName
+            }).ToList()
+        };
+
+        return Ok(response);
     }
 
     [HttpPost]
